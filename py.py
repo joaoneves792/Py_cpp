@@ -1,6 +1,7 @@
 #! /usr/bin/python 
 
-from ctypes import CDLL, CFUNCTYPE, POINTER, c_voidp, c_int
+from ctypes import CDLL, CFUNCTYPE, POINTER, c_voidp, c_int, cast
+from array import array
 
 #Load the shared library like this
 SO = CDLL("./mylib.so")
@@ -42,6 +43,12 @@ c_list = (c_int * 3)(1, 2, 3) #You can define it here
 for i in range(3): # or fill it in dynamically
     c_list[i] = c_int(i)
 SO.addStuff(4000, 3, c_list)
+
+#using array.array
+py_array = array('i', [1, 2, 3, 4, 5, 6])
+SO.addStuff(5000, len(py_array), cast(py_array.buffer_info()[0], POINTER(c_int)))
+py_array.append(7)
+SO.addStuff(6000, len(py_array), cast(py_array.buffer_info()[0], POINTER(c_int)))
 
 #Call Variadic Functions
 SO.addStuffVariadic(666, 13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
